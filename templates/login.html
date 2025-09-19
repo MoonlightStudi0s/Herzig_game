@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Registration</title>
     <link rel="stylesheet" href="static/index.css">
 </head>
 <body>
@@ -14,8 +14,18 @@
         </div>
         <div class="button-container">
             <a href="/" class="main-button"><h1>Home</h1></a>
-            <a href="/registration" class="register-button"><h1>Register</h1></a>
+            <a href="/registration" class="register-button"><h1>Registration</h1></a>
         </div>
+    </div>
+    <div class="body-container">
+        <form action="/submitlogin" method="post">
+            <label for="user-email">Почта</label>
+            <input type="email" id="user-email" required name="user-email">
+            <label for="user-password">Пароль</label>
+            <input type="password" id="user-password" required name="user-password">
+            <br>
+            <input type="submit" id="submit-form">
+        </form>
     </div>
 </body>
 </html>
