@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Herzig</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,400;0,700;1,700&display=swap');
+
+        * {
+            font-family: 'Comic Neue', cursive;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: rgb(75, 78, 102);
+            padding: 20px;
+        }
+        
+        .top-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .elem-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            object-fit: cover;
+        }
+        
+        .name {
+            color: white;
+            text-shadow: 1.5px 1.5px 2.5px black;
+            font-size: 24px;
+        }
+        
+        .button-container {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .login-button, .register-button {
+            display: inline-block;
+            padding: 20px 35px;
+            background: linear-gradient(45deg, #46857e, #5e4685);
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), inset 0 -4px 0 rgba(0, 0, 0, 0.2);
+            transform: skewX(-5deg);
+            min-width: 150px;
+            text-align: center;
+        }
+
+        .login-button::after, .register-button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.2));
+            mix-blend-mode: overlay;
+        }
+
+        .login-button:hover, .register-button:hover {
+            transform: skewX(-5deg) translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), inset 0 -4px 0 rgba(0, 0, 0, 0.3);
+            background: linear-gradient(45deg, #54a098, #7254a0);
+        }
+
+        .login-button:active, .register-button:active {
+            transform: skewX(-5deg) translateY(1px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3), inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .login-button h1, .register-button h1 {
+            margin: 0;
+            font-size: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            transform: skewX(5deg);
+        }
+        
+        hr {
+            border: none;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            margin: 20px 0;
+        }
+        
+        .body-container {
+            padding: 20px;
+            color: white;
+            text-align: center;
+        }
+        
+        /* Адаптивность для мобильных устройств */
+        @media (max-width: 768px) {
+            .top-container {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .button-container {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .login-button, .register-button {
+                width: 100%;
+                padding: 15px 25px;
+            }
+            
+            .login-button h1, .register-button h1 {
+                font-size: 18px;
+            }
+        }
+        .description{
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-container">
+        <div class="elem-container">
+            <img src="static/logo.png" alt="logo" class="logo">
+            <h1 class="name">Herzig Game</h1>
+        </div>
+        <div class="button-container">
+            <a href="/login" class="login-button"><h1>Login</h1></a>
+            <a href="/registration" class="register-button"><h1>Register</h1></a>
+        </div>
+    </div>
+    
+    <hr>
+    
+    <div class="body-container">
+        <h2>Добро пожаловать в Herzig Game!</h2>
+        <br><br><br>
+        <h2 class="description"><p>Это игра про кибербезопасность и хакинг, созданная по мотивам игры из сериала «Киберсталкер».<br>Испытайте себя в испытаниях различной сложности, соревнуйтесь с другими, взламывайте программы, пробуйте новые инъекции, расширяйте свои знания в области криптографии и находите новых друзей по интересу XD</p></h2>
+    </div>
+</body>
+</html>
