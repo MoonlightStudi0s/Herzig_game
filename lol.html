@@ -1,0 +1,303 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Главная - Cyberstalker Game</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="/static/css/style.css" rel="stylesheet">
+
+    
+</head>
+<body class="cyberpunk-theme">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand cyberpunk-text" href="/">
+                <i class="bi bi-shield-check"></i> Cyberstalker
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">
+                            <i class="bi bi-house"></i> Главная
+                        </a>
+                    </li>
+                    
+                </ul>
+
+                <ul class="navbar-nav">
+                    
+                        <li class="nav-item">
+                                <a class="nav-link" href="#" id="login-link">Войти</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" id="register-link">Регистрация</a>
+                        </li>
+                    
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow-1 py-4">
+        <div class="container">
+            <!-- Alert messages -->
+            <div id="alert-container"></div>
+
+            
+<div class="row">
+    <div class="col-md-12">
+        <!-- Hero Section -->
+        <div class="hero-section cyberpunk-card mb-4">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="cyberpunk-title">
+                        <i class="bi bi-shield-lock"></i> Cyberstalker Game
+                    </h1>
+                    <p class="lead">
+                        Соревновательная игра по кибербезопасности в стиле "Король горы".
+                        Решайте задачи по криптографии, стеганографии, сетевой безопасности и другим областям кибербезопасности.
+                    </p>
+                    
+                    <div class="mt-3">
+                        <button class="btn btn-primary btn-lg cyberpunk-btn me-2" id="register-hero-btn">
+                            <i class="bi bi-person-plus"></i> Начать играть
+                        </button>
+                        <button class="btn btn-outline-light btn-lg" id="login-hero-btn">
+                            <i class="bi bi-box-arrow-in-right"></i> Войти
+                        </button>
+                    </div>
+                    
+                </div>
+                <div class="col-md-4 text-center">
+                    <i class="bi bi-cpu cyberpunk-icon" style="font-size: 8rem;"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Competitions -->
+        <div class="row">
+            <div class="col-md-8">
+                <div class="cyberpunk-card">
+                    <h2 class="cyberpunk-subtitle">
+                        <i class="bi bi-trophy"></i> Активные соревнования
+                    </h2>
+
+                    <div id="competitions-list">
+                        <div class="text-center">
+                            <div class="spinner-border cyberpunk-spinner" role="status">
+                                <span class="visually-hidden">Загрузка...</span>
+                            </div>
+                            <p class="mt-2">Загрузка соревнований...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-md-4">
+                <!-- User Stats -->
+                
+
+                <!-- Game Types -->
+                <div class="cyberpunk-card">
+                    <h3 class="cyberpunk-subtitle">
+                        <i class="bi bi-puzzle"></i> Типы задач
+                    </h3>
+                    <div class="row">
+                        <div class="col-6 mb-2">
+                            <div class="challenge-type-card">
+                                <i class="bi bi-key"></i>
+                                <small>Криптография</small>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-2">
+                            <div class="challenge-type-card">
+                                <i class="bi bi-image"></i>
+                                <small>Стеганография</small>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-2">
+                            <div class="challenge-type-card">
+                                <i class="bi bi-router"></i>
+                                <small>Сети</small>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-2">
+                            <div class="challenge-type-card">
+                                <i class="bi bi-code-slash"></i>
+                                <small>Реверс</small>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-2">
+                            <div class="challenge-type-card">
+                                <i class="bi bi-search"></i>
+                                <small>Форензика</small>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-2">
+                            <div class="challenge-type-card">
+                                <i class="bi bi-globe"></i>
+                                <small>Web</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Competition Card Template -->
+<template id="competition-card-template">
+    <div class="competition-card cyberpunk-border mb-3" data-competition-id="">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h4 class="competition-title"></h4>
+                <p class="competition-description text-muted"></p>
+                <div class="competition-meta">
+                    <span class="badge bg-info me-2">
+                        <i class="bi bi-people"></i> <span class="participants-count">0</span>/<span class="max-participants">0</span>
+                    </span>
+                    <span class="badge bg-warning me-2">
+                        <i class="bi bi-clock"></i> <span class="time-limit">0</span> мин
+                    </span>
+                    <span class="badge competition-status"></span>
+                </div>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="competition-actions">
+                    <button class="btn btn-primary cyberpunk-btn join-btn" style="display: none;">
+                        <i class="bi bi-plus-circle"></i> Участвовать
+                    </button>
+                    <button class="btn btn-success start-btn" style="display: none;">
+                        <i class="bi bi-play-circle"></i> Начать игру
+                    </button>
+                    <button class="btn btn-secondary view-btn">
+                        <i class="bi bi-eye"></i> Просмотр
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<!-- Join Competition Modal -->
+<div class="modal fade" id="joinModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content cyberpunk-modal">
+            <div class="modal-header">
+                <h5 class="modal-title">Участие в соревновании</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="join-form">
+                    <div class="mb-3">
+                        <label for="team-name" class="form-label">Название команды</label>
+                        <input type="text" class="form-control" id="team-name" name="team_name" required>
+                        <div class="form-text">Будет отображаться в рейтинге</div>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary cyberpunk-btn">Присоединиться</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-3 mt-auto">
+        <div class="container text-center">
+            <p>&copy; 2024 Cyberstalker Game. Киберспорт и Кибербезопасность.</p>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content cyberpunk-modal">
+                <div class="modal-header">
+                    <h5 class="modal-title">Вход</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="login-form">
+                        <div class="mb-3">
+                            <label for="login-username" class="form-label">Логин</label>
+                            <input type="text" class="form-control" id="login-username" name="username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="login-password" class="form-label">Пароль</label>
+                            <input type="password" class="form-control" id="login-password" name="password" required>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary cyberpunk-btn">Войти</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal fade" id="registerModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content cyberpunk-modal">
+                <div class="modal-header">
+                    <h5 class="modal-title">Регистрация</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="register-form">
+                        <div class="mb-3">
+                            <label for="register-username" class="form-label">Логин</label>
+                            <input type="text" class="form-control" id="register-username" name="username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="register-email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="register-email" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="register-password" class="form-label">Пароль</label>
+                            <input type="password" class="form-control" id="register-password" name="password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="register-password-confirm" class="form-label">Подтверждение пароля</label>
+                            <input type="password" class="form-control" id="register-password-confirm" name="password_confirm" required>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success cyberpunk-btn">Зарегистрироваться</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="/static/js/main.js"></script>
+
+    
+<script src="/static/js/dashboard.js"></script>
+
+</body>
+</html>
