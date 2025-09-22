@@ -14,12 +14,23 @@
         </div>
         <div class="button-container">
             <span style="color: white; margin-right: 20px;">{{ username }}</span>
+            {% if is_admin %}
+                <div style="margin: 20px 0;">
+                    <a href="/admin/" style="background: #dc3545; color: white; padding: 10px 20px; 
+                    text-decoration: none; border-radius: 5px;">Админ панель</a>
+                </div>
+            {% endif %}
             <a href="/" class="main-button"><h1>Home</h1></a>
             <a href="/logout" class="main-button"><h1>Logout</h1></a>
         </div>
     </div>
     <div class="body-container">
-        
+        <div class="games-container">
+            
+        </div>
+        <div class="other-container">
+            
+        </div>
     </div>
 </body>
 </html>
