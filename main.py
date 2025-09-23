@@ -186,7 +186,7 @@ def admin_delete_user(user_id):
         conn.close()
         return f"Ошибка при удалении пользователя: {e}", 500
 
-# Маршруты для игр (остаются без изменений)
+
 @app.route('/admin/games')
 @login_required
 def admin_games():
@@ -300,7 +300,7 @@ def admin_delete_game(game_id):
         conn.close()
         return f"Ошибка при удалении игры: {e}", 500
 
-# Обработчики форм (остаются без изменений)
+    
 @app.route('/submitregister', methods=['POST'])
 def getuser():
     if request.method == 'POST':
