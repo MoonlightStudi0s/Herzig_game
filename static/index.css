@@ -35,6 +35,10 @@ body {
     .body-container input[type="submit"] {
         font-size: 18px;
     }
+    
+    .games-list {
+        grid-template-columns: 1fr;
+    }
 }
 
 .top-container {
@@ -119,17 +123,21 @@ body {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
     transform: skewX(5deg);
 }
+
 .body-container {
     padding: 20px;
     color: white;
     text-align: center;
     display: flex;
+    gap: 20px;
 }
+
 .body-container label {
     display: block;
     color: white;
     margin: 10px 0 5px;
 }
+
 .body-container input[type="text"],
 .body-container input[type="email"],
 .body-container input[type="password"] {
@@ -140,15 +148,18 @@ body {
     margin-bottom: 15px;
     max-width: 500px;
 }
+
 .body-container input[type="submit"]:active {
     transform: skewX(-5deg) translateY(1px);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3), inset 0 -2px 0 rgba(0, 0, 0, 0.2);
 }
+
 .body-container input[type="submit"]:hover {
     transform: skewX(-5deg) translateY(-3px);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), inset 0 -4px 0 rgba(0, 0, 0, 0.3);
     background: linear-gradient(45deg, #54a098, #7254a0);
 }
+
 .body-container input[type="submit"]::after {
     content: '';
     position: absolute;
@@ -159,6 +170,7 @@ body {
     background: linear-gradient(rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.2));
     mix-blend-mode: overlay;
 }
+
 .body-container input[type="submit"] {
     display: inline-block;
     padding: 20px 35px;
@@ -180,13 +192,16 @@ body {
     letter-spacing: 1px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
+
 .body-container input[type="submit"]::-webkit-scrollbar {
     display: none;
 }
+
 .body-container input[type="submit"] {
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
+
 .games-container {
     flex: 1;
     min-height: 400px;
@@ -194,8 +209,8 @@ body {
     border: 3px solid #ffffff;
     padding: 20px;
     background: rgba(255, 255, 255, 0.1);
-    margin-right: 20px;
 }
+
 .other-container {
     flex: 1;
     min-height: 400px;
@@ -203,4 +218,63 @@ body {
     border: 3px solid #ffffff;
     padding: 20px;
     background: rgba(255, 255, 255, 0.1);
+}
+
+.games-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.game-item {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid #ffffff;
+    border-radius: 12px;
+    padding: 15px;
+    transition: all 0.3s ease;
+}
+
+.game-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.game-id {
+    font-weight: bold;
+    color: #ffcc00;
+    font-size: 18px;
+}
+
+.game-name {
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+}
+
+.game-details {
+    display: flex;
+    justify-content: space-between;
+    color: #cccccc;
+    font-size: 14px;
+}
+
+.game-duration, .game-time {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.avaible-games {
+    color: white;
+    text-shadow: 1.5px 1.5px 2.5px black;
+    margin-bottom: 20px;
 }

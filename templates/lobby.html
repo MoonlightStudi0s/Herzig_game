@@ -26,10 +26,24 @@
     </div>
     <div class="body-container">
         <div class="games-container">
-            
+            <h1 class="avaible-games">Доступные игры</h1>
+            <div class="games-list">
+                {% for game in games %}
+                <div class="game-item" onclick="window.location.href='/game.html?id={{ game['id'] }}'" style="cursor: pointer;">
+                    <div class="game-header">
+                        <span class="game-id">#{{ game['id'] }}</span>
+                        <span class="game-name">{{ game['name'] }}</span>
+                    </div>
+                    <div class="game-details">
+                        <span class="game-duration">⏱️ {{ game['duration'] or '-' }}</span>
+                        <span class="game-time">🕒 {{ game['start_time'] or 'Не указано' }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
         </div>
         <div class="other-container">
-            
+
         </div>
     </div>
 </body>

@@ -65,6 +65,7 @@ def initdb():
 
 initdb()
 
+
 def is_admin():
     if not current_user.is_authenticated:
         return False
@@ -73,7 +74,14 @@ def is_admin():
     conn.close()
     return user_data and user_data['is_admin']
 
-# Основные маршруты
+
+
+
+
+
+
+
+
 @app.route('/')
 def mainpage():
     return render_template('main.html')
@@ -93,8 +101,13 @@ def registerpage():
 @app.route('/lobby')
 @login_required
 def lobbypage():
+
+    conn = getdb()
+    games = conn.execute('SELECT * FROM games ORDER BY start_time DESC, id DESC').fetchall()
+    conn.close()
+
     is_admin_user = is_admin()
-    return render_template('lobby.html', username=current_user.username, is_admin=is_admin_user)
+    return render_template('lobby.html', username=current_user.username, is_admin=is_admin_user, games=games)
 
 @app.route('/logout')
 @login_required
@@ -102,7 +115,7 @@ def logout():
     logout_user()
     return redirect(url_for('mainpage'))
 
-# Админские маршруты
+
 @app.route('/admin/')
 @login_required
 def admin_dashboard():
@@ -198,6 +211,20 @@ def admin_games():
     conn.close()
     
     return render_template('admin_games.html', games=games)
+
+@app.route('/game.html')
+def game_page():
+    return render_template('game.html')
+
+
+
+
+
+
+
+
+
+
 
 @app.route('/admin/games/add', methods=['GET', 'POST'])
 @login_required

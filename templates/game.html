@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Игра - Herzig Game</title>
+    <link rel="stylesheet" href="static/index.css">
+</head>
+<body>
+    <div class="top-container">
+        <div class="elem-container">
+            <img src="static/logo.png" alt="logo" class="logo">
+            <h1 class="name">Herzig Game</h1>
+        </div>
+        <div class="button-container">
+            <span id="username" style="color: white; margin-right: 20px;"></span>
+            <a href="/lobby" class="main-button"><h1>Лобби</h1></a>
+            <a href="/" class="main-button"><h1>Главная</h1></a>
+            <a href="/logout" class="main-button"><h1>Выход</h1></a>
+        </div>
+    </div>
+
+    <div class="game-container">
+        <div id="game-content">
+            <!-- Контент игры будет загружаться сюда динамически -->
+            <div class="loading">
+                <h2>Загрузка игры...</h2>
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="static/game.js"></script>
+</body>
+</html> 
