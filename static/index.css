@@ -278,3 +278,45 @@ body {
     text-shadow: 1.5px 1.5px 2.5px black;
     margin-bottom: 20px;
 }
+
+
+/* Стили для страниц логина и регистрации */
+.login-page .body-container,
+.register-page .body-container {
+    display: block;
+    text-align: center;
+}
+
+.login-page .body-container form,
+.register-page .body-container form {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.login-page .body-container input[type="text"],
+.login-page .body-container input[type="email"],
+.login-page .body-container input[type="password"],
+.register-page .body-container input[type="text"],
+.register-page .body-container input[type="email"],
+.register-page .body-container input[type="password"] {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto 15px auto;
+}
+
+.login-page .body-container input[type="submit"],
+.register-page .body-container input[type="submit"] {
+    width: 100%;
+    margin-top: 10px;
+}
+
+/* Убираем flex для body-container на страницах логина/регистрации */
+.login-page .body-container,
+.register-page .body-container {
+    display: block !important;
+    flex: none !important;
+}

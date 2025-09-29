@@ -35,53 +35,11 @@ class GameManager {
     }
 
     async fetchGameData(gameId) {
-        // Имитация запроса к API - замените на реальный endpoint
-        const mockGames = {
-            '1': {
-                id: 1,
-                name: 'Приключенческая битва',
-                type: 'adventure',
-                duration: '60 минут',
-                players: 4,
-                maxPlayers: 8,
-                status: 'waiting',
-                description: 'Увлекательное приключение в мире фэнтези',
-                playersList: ['Игрок123', 'Гость1', 'Гость2']
-            },
-            '2': {
-                id: 2,
-                name: 'Стратегическое сражение',
-                type: 'strategy',
-                duration: '45 минут',
-                players: 2,
-                maxPlayers: 4,
-                status: 'in_progress',
-                description: 'Тактическая битва за ресурсы и территории',
-                playersList: ['Игрок123', 'Соперник']
-            },
-            '3': {
-                id: 3,
-                name: 'Гонки на выживание',
-                type: 'racing',
-                duration: '30 минут',
-                players: 6,
-                maxPlayers: 12,
-                status: 'finished',
-                description: 'Экстремальные гонки с элементами выживания',
-                playersList: ['Победитель', 'Второй', 'Третий']
-            }
-        };
-
-        // Имитация задержки сети
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        const game = mockGames[gameId];
-        if (!game) {
-            throw new Error('Игра не найдена');
-        }
-        
-        return game;
+        const response = await fetch(`/api/game/${gameId}`);
+        if (!response.ok) throw new Error("Ошибка загрузки игры");
+        return await response.json();
     }
+
 
     renderGame(gameData) {
         const gameContent = document.getElementById('game-content');

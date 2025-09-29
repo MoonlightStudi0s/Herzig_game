@@ -213,6 +213,7 @@ def admin_games():
     return render_template('admin_games.html', games=games)
 
 @app.route('/game.html')
+@login_required
 def game_page():
     return render_template('game.html')
 
@@ -224,7 +225,27 @@ def game_page():
 
 
 
+@app.route('/api/game/<int:game_id>', methods=['GET'])
+def api_get_game(game_id):
+    conn = getdb()
+    game = conn.execute('SELECT * FROM games WHERE id = ?', (game_id,)).fetchone()
+    conn.close()
 
+    if not game:
+        return jsonify({"error": "Игра не найдена"}), 404
+
+    fake_game = {
+        "id": game["id"],
+        "name": game["name"],
+        "duration": game["duration"] or "10 минут",
+        "start_time": game["start_time"] or str(datetime.now()), 
+        "players": 1,
+        "maxPlayers": 8,
+        "description": "Тестовая игра: подключение API",
+        "playersList": ["Игрок1"]
+    }
+
+    return jsonify(fake_game)
 
 @app.route('/admin/games/add', methods=['GET', 'POST'])
 @login_required
