@@ -20,14 +20,14 @@ app.config['REMEMBER_COOKIE_REFRESH_EACH_REQUEST'] = True
 socketio = SocketIO(app)
 
 
-# ============================================================================
+# ================================================================================================================================
 #                                         Настройки bash
 
 from flask import Flask, request, jsonify, render_template
 import subprocess, shlex, locale, os, sys, time
 
 
-ALLOWED_PROGS = {"echo", "whoami", "pwd", "ipconfig", "dir", "type", "ls", "cat", "netstat"}
+ALLOWED_PROGS = {"echo", "whoami", "pwd", "ipconfig", "blog"}
 MAX_CMD_LEN = 1000
 MAX_OUTPUT_CHARS = 20000
 RUN_TIMEOUT = 6  # seconds
@@ -63,7 +63,7 @@ def preexec_limits():
     except Exception:
         pass
 
-# ============================================================================
+    # ================================================================================================================================
 
 
 
@@ -287,6 +287,11 @@ def game_page():
 def gamebash():
     return(render_template('main_game_bash.html'))
 
+@app.route('/game/blog')
+@login_required
+def blogrernder():
+    return(render_template('forum_fromali.html'))
+
 
 
 
@@ -324,7 +329,6 @@ def api_get_game(game_id):
         "start_time": game["start_time"] or str(datetime.now()),
         "players": len(players_list),
         "maxPlayers": 8,
-        "description": "Игра с реальным API и таблицей игроков",
         "playersList": players_list,
         "type": "adventure",
         "status": game["status"],
@@ -555,6 +559,11 @@ def exec_cmd():
             return jsonify({"output": "", "cwd": os.getcwd()})
         except Exception as e:
             return jsonify({"output": f"Ошибка: {e}", "cwd": os.getcwd()})
+        
+    if prog == "blog":
+        return jsonify({"redirect": url_for('blogrernder')})
+    
+
 
     # дальше: проверим по белому списку
     if prog not in ALLOWED_PROGS:
@@ -665,9 +674,6 @@ def handle_leave_game(data):
 @app.errorhandler(404)
 def notfound(e):
     return render_template('404.html'), 404
-
-
-
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5000, debug=True)

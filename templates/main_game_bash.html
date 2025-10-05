@@ -12,13 +12,12 @@ body {
 }
 #terminal {
   border: 1px solid #444;
-  padding: 0 10px 10px 10px; /* верхний padding = 0 */
+  padding: 0 10px 10px 10px;
   height: 500px;
   overflow-y: auto;
   background: #000;
   white-space: pre-wrap;
 }
-
 #input-line {
   display: flex;
   margin-top: 8px;
@@ -39,10 +38,9 @@ body {
 }
 .cmd-line, .output-line {
   white-space: pre;
-  margin: 0;      /* убираем любые отступы сверху и снизу */
+  margin: 0;
   padding: 0;
 }
-
 .error { color: #ff6666; }
 .info { color: #66ffcc; font-size: 13px; }
 </style>
@@ -62,9 +60,15 @@ const historyDiv = document.getElementById("history");
 const promptSpan = document.getElementById("prompt");
 const terminal = document.getElementById("terminal");
 
-// вспомогательная печать
+function escapeHtml(s) {
+  if (!s && s !== "") return "";
+  return s
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
 function appendLine(cmd, output, cwd) {
-  // используем <pre> чтобы всё начиналось с начала строки
   const cmdHtml = `<pre class="cmd-line"><span style="color:#0f0">${escapeHtml(cwd)}&gt;</span> ${escapeHtml(cmd)}</pre>`;
   let outHtml = "";
   if (output) {
@@ -74,24 +78,51 @@ function appendLine(cmd, output, cwd) {
   terminal.scrollTop = terminal.scrollHeight;
 }
 
-
-// экранирование
-function escapeHtml(s) {
-  if (!s && s !== "") return "";
-  return s
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;");
-}
-
-// обработка Enter
 input.addEventListener("keydown", async (e) => {
   if (e.key === "Enter") {
     const cmd = input.value.trim();
     if (!cmd) return;
     input.value = "";
 
-    // отправляем на /exec
+    const lower = cmd.toLowerCase();
+
+    // 👉 Локальные команды
+    if (lower === "cls" || lower === "clear") {
+      historyDiv.innerHTML = "";
+      return;
+    }
+
+    if (lower === "help") {
+      const helpText = [
+        "Доступные команды:",
+        "----------------------------------",
+        "help             - показать список команд",
+        "clear / cls      - очистить экран",
+        "blog             - перейти в раздел /game/blog",
+        "echo [текст]     - вывести текст",
+        "pwd              - показать текущий путь",
+        "ls / dir         - показать содержимое директории",
+        "cd [путь]        - перейти в директорию",
+        "exit             - выйти из терминала",
+        "----------------------------------"
+      ].join("\n");
+      appendLine(cmd, helpText, "C:\\Users");
+      return;
+    }
+
+    if (lower === "blog") {
+      window.location.href = "/game/blog";
+      return;
+    }
+
+    if (lower === "exit") {
+      appendLine(cmd, "Сессия завершена. Для входа обновите страницу.", "C:\\Users");
+      input.disabled = true;
+      window.location.href = "/lobby"
+      return;
+    }
+
+    // 👉 Все остальные — через API /exec
     try {
       const res = await fetch("/exec", {
         method: "POST",
@@ -102,14 +133,12 @@ input.addEventListener("keydown", async (e) => {
       const out = data.output || "";
       const cwd = data.cwd || "C:\\Users";
 
-      // если special clear token
-      if (out === "__clear__" || (cmd.toLowerCase() === "cls")) {
+      if (out === "__clear__") {
         historyDiv.innerHTML = "";
       } else {
         appendLine(cmd, out, cwd);
       }
 
-      // обновить prompt
       promptSpan.textContent = cwd + ">";
     } catch (err) {
       appendLine(cmd, "Ошибка соединения с сервером", "C:\\Users");
@@ -117,7 +146,7 @@ input.addEventListener("keydown", async (e) => {
   }
 });
 
-// стартовая подсказка: запросим cwd (или используем текущую)
+// 👉 Получаем текущую директорию при загрузке
 (async function getCwd() {
   try {
     const res = await fetch("/exec", {

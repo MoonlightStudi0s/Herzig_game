@@ -88,7 +88,7 @@ class GameManager {
         gameContent.innerHTML = `
             <div class="game-header">
                 <h1 class="game-title">${gameData.name}</h1>
-                <p>${gameData.description}</p>
+
             </div>
 
             <div class="game-info">

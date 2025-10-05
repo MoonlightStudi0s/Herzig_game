@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CTF Блоги | ВКонтакте</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        
+        body {
+            background-color: #edeef0;
+            color: #000000;
+            line-height: 1.5;
+        }
+        
+        a {
+            color: #2a5885;
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        header {
+            background-color: #4a76a8;
+            color: white;
+            box-shadow: 0 1px 0 0 #3d6180;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 50px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 22px;
+            font-weight: bold;
+        }
+        
+        .logo i {
+            margin-right: 10px;
+            font-size: 24px;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav li {
+            margin-left: 20px;
+        }
+        
+        nav a {
+            color: white;
+            font-weight: 500;
+            padding: 5px 10px;
+            border-radius: 3px;
+            transition: background-color 0.2s;
+        }
+        
+        nav a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            text-decoration: none;
+        }
+        
+        .search-form {
+            display: flex;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            width: 300px;
+        }
+        
+        .search-input {
+            border: none;
+            padding: 8px 15px;
+            width: 100%;
+            outline: none;
+            color: #000;
+        }
+        
+        .search-button {
+            background: transparent;
+            border: none;
+            padding: 8px 15px;
+            cursor: pointer;
+            color: #4a76a8;
+        }
+        
+        main {
+            display: flex;
+            padding: 20px 0;
+            gap: 20px;
+        }
+        
+        .sidebar {
+            width: 250px;
+            flex-shrink: 0;
+        }
+        
+        .content {
+            flex-grow: 1;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 0 0 #dce1e6, 0 0 0 1px #e7e8ec;
+            padding: 20px;
+        }
+        
+        .page-title {
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: 500;
+            color: #000;
+        }
+        
+        .sidebar-block {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 0 0 #dce1e6, 0 0 0 1px #e7e8ec;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .sidebar-title {
+            padding: 15px;
+            font-weight: 500;
+            border-bottom: 1px solid #e7e8ec;
+            background: #fafbfc;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+        }
+        
+        .sidebar-menu li {
+            border-bottom: 1px solid #e7e8ec;
+        }
+        
+        .sidebar-menu li:last-child {
+            border-bottom: none;
+        }
+        
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: #2a5885;
+            transition: background-color 0.2s;
+        }
+        
+        .sidebar-menu a:hover {
+            background-color: #f0f2f5;
+            text-decoration: none;
+        }
+        
+        .sidebar-menu i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+            color: #626d7a;
+        }
+        
+        .blogs-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .blog-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 0 0 #dce1e6, 0 0 0 1px #e7e8ec;
+            padding: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .blog-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .blog-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 10px;
+            color: #2a5885;
+        }
+        
+        .blog-author {
+            font-size: 14px;
+            color: #626d7a;
+            margin-bottom: 15px;
+        }
+        
+        .blog-description {
+            margin-bottom: 15px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .blog-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #818c99;
+            margin-top: 15px;
+        }
+        
+        .posts-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .post-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 0 0 #dce1e6, 0 0 0 1px #e7e8ec;
+            padding: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .post-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .post-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 10px;
+            color: #2a5885;
+        }
+        
+        .post-meta {
+            font-size: 14px;
+            color: #818c99;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .post-meta i {
+            margin-right: 5px;
+        }
+        
+        .post-content {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        
+        .post-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e7e8ec;
+        }
+        
+        .post-action {
+            display: flex;
+            align-items: center;
+            color: #626d7a;
+            font-size: 14px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .post-action:hover {
+            color: #2a5885;
+        }
+        
+        .post-action i {
+            margin-right: 5px;
+        }
+        
+        .post-link {
+            display: inline-flex;
+            align-items: center;
+            color: #2a5885;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+        
+        .post-link i {
+            margin-left: 5px;
+            transition: transform 0.2s;
+        }
+        
+        .post-link:hover i {
+            transform: translateX(3px);
+        }
+        
+        .breadcrumbs {
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #626d7a;
+            display: flex;
+            align-items: center;
+        }
+        
+        .breadcrumbs a {
+            color: #2a5885;
+        }
+        
+        .breadcrumbs span {
+            margin: 0 5px;
+        }
+        
+        .flag-checker {
+            max-width: 500px;
+            margin: 0 auto;
+            text-align: center;
+            padding: 30px;
+        }
+        
+        .flag-input {
+            width: 100%;
+            border: 1px solid #dce1e6;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin: 20px 0;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        
+        .flag-input:focus {
+            border-color: #4a76a8;
+        }
+        
+        .flag-button {
+            background-color: #4a76a8;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            padding: 12px 30px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        
+        .flag-button:hover {
+            background-color: #3d6180;
+        }
+        
+        .flag-result {
+            margin-top: 20px;
+            font-weight: 500;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .highlight {
+            background-color: #fff9c4;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        
+        .hint {
+            background-color: #f0f2f5;
+            border-left: 4px solid #4a76a8;
+            padding: 10px 15px;
+            margin: 15px 0;
+            font-size: 14px;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .hidden-data {
+            display: none;
+        }
+        
+        footer {
+            background-color: #fff;
+            border-top: 1px solid #dce1e6;
+            padding: 20px 0;
+            margin-top: 40px;
+            text-align: center;
+            color: #626d7a;
+            font-size: 14px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+        }
+        
+        .modal-title {
+            margin-bottom: 20px;
+            font-size: 20px;
+            font-weight: 500;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            cursor: pointer;
+            font-size: 20px;
+            color: #626d7a;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #4a76a8;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .user-name {
+            font-weight: 500;
+            color: #2a5885;
+        }
+        
+        .post-date {
+            font-size: 13px;
+            color: #818c99;
+        }
+        
+        @media (max-width: 768px) {
+            main {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+            }
+            
+            .blogs-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-content {
+                flex-wrap: wrap;
+                height: auto;
+                padding: 10px 0;
+            }
+            
+            .search-form {
+                order: 3;
+                width: 100%;
+                margin-top: 10px;
+            }
+            
+            nav ul {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Часть 1 флага: CTF{ -->
+    <div class="hidden-data" id="flag-part-1">CTF{</div>
+    
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fab fa-vk"></i>
+                    CTF Блоги
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="#" data-page="home">Главная</a></li>
+                        <li><a href="#" data-page="blogs">Все блоги</a></li>
+                        <li><a href="#" data-page="flag-checker">Проверить флаг</a></li>
+                    </ul>
+                </nav>
+                <form class="search-form">
+                    <input type="text" class="search-input" placeholder="Поиск по блогам...">
+                    <button type="submit" class="search-button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <aside class="sidebar">
+            <div class="sidebar-block">
+                <div class="sidebar-title">Навигация</div>
+                <ul class="sidebar-menu">
+                    <li><a href="#" data-page="home"><i class="fas fa-home"></i> Главная</a></li>
+                    <li><a href="#" data-page="blogs"><i class="fas fa-blog"></i> Все блоги</a></li>
+                    <li><a href="#" data-page="flag-checker"><i class="fas fa-flag"></i> Проверить флаг</a></li>
+                </ul>
+            </div>
+            
+            <div class="sidebar-block">
+                <div class="sidebar-title">Популярные блоги</div>
+                <ul class="sidebar-menu">
+                    <li><a href="#" data-page="blog-1"><i class="fas fa-user"></i> Жизнь и Хобби</a></li>
+                    <li><a href="#" data-page="blog-2"><i class="fas fa-laptop-code"></i> Работа и Проекты</a></li>
+                    <li><a href="#" data-page="blog-3"><i class="fas fa-trophy"></i> Успехи и Достижения</a></li>
+                </ul>
+            </div>
+            
+            <div class="sidebar-block">
+                <div class="sidebar-title">Статистика</div>
+                <ul class="sidebar-menu">
+                    <li><a href="#"><i class="fas fa-users"></i> 5 блогов</a></li>
+                    <li><a href="#"><i class="fas fa-file-alt"></i> 30 постов</a></li>
+                    <li><a href="#"><i class="fas fa-user-friends"></i> 7 авторов</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <div class="content">
+            <div class="breadcrumbs" id="breadcrumbs">
+                <a href="#" data-page="home">Главная</a>
+            </div>
+
+            <div id="content">
+                <!-- CTF{Vlad_1s_the-best_pr0gramer_3v3r} -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Часть 4 флага: } -->
+    <div class="hidden-data" id="flag-part-4">}</div>
+
+    <footer>
+        <div class="container">
+            <p>CTF Блоги - Исследуй, находи, побеждай! | Стилизовано под ВКонтакте</p>
+        </div>
+    </footer>
+
+    <div class="modal" id="flagModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeModal">&times;</span>
+            <h2 class="modal-title">Проверка флага</h2>
+            <input type="text" class="flag-input" id="flagInput" placeholder="Введите флаг...">
+            <button class="flag-button" id="checkFlag">Проверить</button>
+            <div class="flag-result" id="flagResult"></div>
+        </div>
+    </div>
+
+    <script>
+        // Часть 2 флага: B1rthd4y_4l3x_19
+        const FLAG_PART_2 = "B1rthd4y_4l3x_19";
+        
+        // Модель данных с скрытыми частями флага
+        const blogsData = [
+            {
+                id: 1,
+                title: "Жизнь и Хобби",
+                author: "alex_river",
+                description: "Личный блог о повседневной жизни, увлечениях и встречах с друзьями.",
+                posts: [
+                    {
+                        id: 1,
+                        title: "День рождения",
+                        date: "2024-03-15",
+                        content: "Отмечал день рождения с @iron_man и @crypto_girl. Отличная вечеринка! Кстати, мне исполнилось 19."
+                    },
+                    {
+                        id: 2,
+                        title: "Поход в горы",
+                        date: "2024-03-10",
+                        content: "Только что вернулся из похода в горы. Фотографии с @nature_lover просто потрясающие."
+                    },
+                    {
+                        id: 3,
+                        title: "Перечитываю классику",
+                        date: "2024-03-05",
+                        content: "Перечитываю 'Мастера и Маргариту'. Нашел старую заметку от @bookworm об этой книге."
+                    },
+                    {
+                        id: 4,
+                        title: "Новый проект",
+                        date: "2024-02-28",
+                        content: "Начал работу над новым проектом с @crypto_girl. Обещает быть интересным!"
+                    },
+                    {
+                        id: 5,
+                        title: "Встреча с друзьями",
+                        date: "2024-02-20",
+                        content: "Встретился с @nature_lover и @iron_man в кофейне. Обсудили планы на выходные."
+                    },
+                    {
+                        id: 6,
+                        title: "Фотографии",
+                        date: "2024-02-15",
+                        content: "Выложил новые фотографии с последней встречи. Спасибо @nature_lover за советы по съемке!"
+                    },
+                    {
+                        id: 7,
+                        title: "Книжные рекомендации",
+                        date: "2024-02-10",
+                        content: "Ищу интересные книги для чтения. @bookworm, есть что посоветовать?"
+                    },
+                    {
+                        id: 8,
+                        title: "Планы на лето",
+                        date: "2024-02-05",
+                        content: "Начинаю планировать летний отпуск. Хочу съездить в горы с @nature_lover."
+                    }
+                ]
+            },
+            {
+                id: 2,
+                title: "Работа и Проекты",
+                author: "crypto_girl",
+                description: "Профессиональный блог о рабочих проектах, конференциях и технических вызовах.",
+                posts: [
+                    {
+                        id: 9,
+                        title: "Завершение проекта AlphaCorp",
+                        date: "2024-03-12",
+                        content: "Завершила большой проект для клиента 'AlphaCorp'. Спасибо команде, особенно @alex_river за помощь с бэкендом."
+                    },
+                    {
+                        id: 10,
+                        title: "Доклад на DevCon",
+                        date: "2024-03-08",
+                        content: "Готовлю доклад по кибербезопасности на конференции 'DevCon'. Ссылка на регистрацию: devcon-2024.example.com"
+                    },
+                    {
+                        id: 11,
+                        title: "Критическая уязвимость",
+                        date: "2024-03-01",
+                        content: "Нашла критическую уязвимость в системе... исправление заняло весь вечер."
+                    },
+                    {
+                        id: 12,
+                        title: "Новый инструмент",
+                        date: "2024-02-25",
+                        content: "Разрабатываю новый инструмент для анализа безопасности. @alex_river помогает с интерфейсом."
+                    },
+                    {
+                        id: 13,
+                        title: "Конференция по блокчейну",
+                        date: "2024-02-18",
+                        content: "Выступала на конференции по блокчейну. Отличная возможность пообщаться с @cyber_guard."
+                    },
+                    {
+                        id: 14,
+                        title: "Обучение команды",
+                        date: "2024-02-12",
+                        content: "Провела обучение команды по новым методам шифрования. Все прошло успешно!"
+                    },
+                    {
+                        id: 15,
+                        title: "Пет-проект",
+                        date: "2024-02-05",
+                        content: "Запустила новый пет-проект по анализу транзакций. Скоро выложу код на GitHub."
+                    }
+                ]
+            },
+            {
+                id: 3,
+                title: "Успехи и Достижения",
+                author: "nature_lover",
+                description: "Блог о личных и профессиональных достижениях, победах и новых навыках.",
+                posts: [
+                    {
+                        id: 16,
+                        title: "Победа в фотоконкурсе",
+                        date: "2024-03-14",
+                        content: "Моя фотография победила в конкурсе 'World in Focus'! Спасибо всем за голоса, особенно @alex_river."
+                    },
+                    {
+                        id: 17,
+                        title: "Сертификат Senior DevOps Engineer",
+                        date: "2024-03-07",
+                        content: "Наконец-то получил сертификат Senior DevOps Engineer. Отмечал это в посте @alex_river."
+                    },
+                    {
+                        id: 18,
+                        title: "Запуск EcoTracker",
+                        date: "2024-02-28",
+                        content: "Запустил новый пет-проект 'EcoTracker'. Код выложил на Git: githost.com/nature_lover/ecotracker"
+                    },
+                    {
+                        id: 19,
+                        title: "Новый фотоаппарат",
+                        date: "2024-02-22",
+                        content: "Приобрел новый фотоаппарат для съемки природы. Не могу дождаться похода с @alex_river!"
+                    },
+                    {
+                        id: 20,
+                        title: "Статья в журнале",
+                        date: "2024-02-15",
+                        content: "Моя статья о защите окружающей среды опубликована в журнале 'EcoWorld'."
+                    },
+                    {
+                        id: 21,
+                        title: "Волонтерство",
+                        date: "2024-02-08",
+                        content: "Участвовал в волонтерской программе по очистке леса. Присоединяйтесь в следующий раз!"
+                    }
+                ]
+            },
+            {
+                id: 4,
+                title: "Технологии и Код",
+                author: "cyber_guard",
+                description: "Технический блог о программировании, кибербезопасности и новых технологиях.",
+                posts: [
+                    {
+                        id: 22,
+                        title: "Новый фреймворк",
+                        date: "2024-03-11",
+                        content: "Изучаю новый фреймворк для тестирования безопасности. Многообещающие возможности."
+                    },
+                    {
+                        id: 23,
+                        title: "Конференция SecurityCon",
+                        date: "2024-03-04",
+                        content: "Выступал на SecurityCon с докладом о новых угрозах. Встретил там @crypto_girl."
+                    },
+                    {
+                        id: 24,
+                        title: "Патч для уязвимости",
+                        date: "2024-02-26",
+                        content: "Выпустил патч для критической уязвимости в популярной библиотеке. Обновляйтесь!"
+                    },
+                    {
+                        id: 25,
+                        title: "Курс по безопасности",
+                        date: "2024-02-19",
+                        content: "Запустил онлайн-курс по основам кибербезопасности. Уже более 1000 участников!"
+                    },
+                    {
+                        id: 26,
+                        title: "Аудит кода",
+                        date: "2024-02-13",
+                        content: "Провел аудит кода для стартапа. Нашел несколько серьезных проблем безопасности."
+                    }
+                ]
+            },
+            {
+                id: 5,
+                title: "Кулинарные заметки",
+                author: "chef_mario",
+                description: "Кулинарный блог с рецептами, советами и историями о еде.",
+                posts: [
+                    {
+                        id: 27,
+                        title: "Новый рецепт пасты",
+                        date: "2024-03-13",
+                        content: "Разработал новый рецепт пасты с трюфелями. Попробуйте - не пожалеете!"
+                    },
+                    {
+                        id: 28,
+                        title: "Мастер-класс",
+                        date: "2024-03-06",
+                        content: "Провел мастер-класс по итальянской кухне. Все участники остались довольны."
+                    },
+                    {
+                        id: 29,
+                        title: "Сезонные продукты",
+                        date: "2024-02-27",
+                        content: "Весенние продукты уже в продаже. Самые свежие овощи для ваших блюд."
+                    },
+                    {
+                        id: 30,
+                        title: "Кулинарная книга",
+                        date: "2024-02-21",
+                        content: "Работаю над новой кулинарной книгой. Скоро анонсирую дату выхода."
+                    }
+                ]
+            }
+        ];
+
+        // Часть 3 флага: _DevCon_2024
+        const FLAG_PART_3 = "_DevCon_2024";
+
+        // Состояние приложения
+        let currentPage = 'home';
+        let currentBlog = null;
+        let currentPost = null;
+        let searchResults = null;
+
+        // Инициализация приложения
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPage('home');
+            
+            document.querySelectorAll('nav a, .sidebar-menu a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = this.getAttribute('data-page');
+                    if (page) {
+                        loadPage(page);
+                    }
+                });
+            });
+            
+            document.querySelector('.search-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const query = document.querySelector('.search-input').value.trim();
+                if (query) {
+                    performSearch(query);
+                }
+            });
+            
+            document.getElementById('closeModal').addEventListener('click', closeModal);
+            document.getElementById('checkFlag').addEventListener('click', checkFlag);
+            
+            window.addEventListener('click', function(e) {
+                if (e.target === document.getElementById('flagModal')) {
+                    closeModal();
+                }
+            });
+            
+            // Добавляем обработчик для поиска скрытых данных
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.shiftKey && e.key === 'F') {
+                    e.preventDefault();
+                    showHiddenData();
+                }
+            });
+        });
+
+        // Показать скрытые данные (для отладки)
+        function showHiddenData() {
+            const hiddenElements = document.querySelectorAll('.hidden-data');
+            hiddenElements.forEach(el => {
+                el.style.display = 'block';
+                el.style.background = '#fff9c4';
+                el.style.padding = '10px';
+                el.style.margin = '10px 0';
+                el.style.border = '1px solid #ffd54f';
+                el.style.borderRadius = '4px';
+            });
+        }
+
+        // Загрузка страницы
+        function loadPage(page) {
+            currentPage = page;
+            updateBreadcrumbs();
+            
+            switch(page) {
+                case 'home':
+                    renderHomePage();
+                    break;
+                case 'blogs':
+                    renderBlogsPage();
+                    break;
+                case 'flag-checker':
+                    openModal();
+                    break;
+                default:
+                    if (page.startsWith('blog-')) {
+                        const blogId = parseInt(page.split('-')[1]);
+                        renderBlogPage(blogId);
+                    } else if (page.startsWith('post-')) {
+                        const postId = parseInt(page.split('-')[1]);
+                        renderPostPage(postId);
+                    } else if (page.startsWith('search-')) {
+                        const query = decodeURIComponent(page.split('-')[1]);
+                        performSearch(query, true);
+                    }
+            }
+        }
+
+        // Обновление хлебных крошек
+        function updateBreadcrumbs() {
+            const breadcrumbs = document.getElementById('breadcrumbs');
+            let html = '<a href="#" data-page="home">Главная</a>';
+            
+            if (currentPage === 'blogs') {
+                html += ' <span>></span> <span>Все блоги</span>';
+            } else if (currentPage.startsWith('blog-')) {
+                const blogId = parseInt(currentPage.split('-')[1]);
+                const blog = blogsData.find(b => b.id === blogId);
+                html += ` <span>></span> <a href="#" data-page="blogs">Все блоги</a> <span>></span> <span>${blog.title}</span>`;
+            } else if (currentPage.startsWith('post-')) {
+                const postId = parseInt(currentPage.split('-')[1]);
+                const post = findPostById(postId);
+                const blog = blogsData.find(b => b.posts.some(p => p.id === postId));
+                html += ` <span>></span> <a href="#" data-page="blogs">Все блоги</a> <span>></span> <a href="#" data-page="blog-${blog.id}">${blog.title}</a> <span>></span> <span>${post.title}</span>`;
+            } else if (currentPage.startsWith('search-')) {
+                const query = decodeURIComponent(currentPage.split('-')[1]);
+                html += ` <span>></span> <span>Результаты поиска: "${query}"</span>`;
+            } else if (currentPage === 'flag-checker') {
+                html += ' <span>></span> <span>Проверка флага</span>';
+            }
+            
+            breadcrumbs.innerHTML = html;
+            
+            breadcrumbs.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = this.getAttribute('data-page');
+                    loadPage(page);
+                });
+            });
+        }
+
+        // Рендер главной страницы
+        function renderHomePage() {
+            const content = document.getElementById('content');
+            let html = '<h1 class="page-title">Добро пожаловать в CTF Блоги!</h1>';
+            html += '<p>Исследуйте блоги, находите скрытые связи и разгадывайте тайны. Удачи в поиске флагов!</p>';
+            
+            html += `<div class="hint">
+                <i class="fas fa-info-circle"></i> 
+                Подсказка: Флаг разделен на части и спрятан в коде страницы. Ищите внимательно!
+            </div>`;
+            
+            html += '<h2 style="margin-top: 30px; margin-bottom: 20px;">Все блоги</h2>';
+            html += '<div class="blogs-list">';
+            
+            blogsData.forEach(blog => {
+                html += `
+                    <div class="blog-card">
+                        <h3 class="blog-title">${blog.title}</h3>
+                        <p class="blog-author">Автор: ${blog.author}</p>
+                        <p class="blog-description">${blog.description}</p>
+                        <div class="blog-stats">
+                            <span><i class="far fa-file-alt"></i> ${blog.posts.length} постов</span>
+                            <a href="#" class="post-link" data-page="blog-${blog.id}">Читать блог <i class="fas fa-chevron-right"></i></a>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            content.innerHTML = html;
+            
+            content.querySelectorAll('a[data-page]').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = this.getAttribute('data-page');
+                    loadPage(page);
+                });
+            });
+        }
+
+        // Рендер страницы всех блогов
+        function renderBlogsPage() {
+            const content = document.getElementById('content');
+            let html = '<h1 class="page-title">Все блоги</h1>';
+            html += '<div class="blogs-list">';
+            
+            blogsData.forEach(blog => {
+                html += `
+                    <div class="blog-card">
+                        <h3 class="blog-title">${blog.title}</h3>
+                        <p class="blog-author">Автор: ${blog.author}</p>
+                        <p class="blog-description">${blog.description}</p>
+                        <div class="blog-stats">
+                            <span><i class="far fa-file-alt"></i> ${blog.posts.length} постов</span>
+                            <a href="#" class="post-link" data-page="blog-${blog.id}">Читать блог <i class="fas fa-chevron-right"></i></a>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            content.innerHTML = html;
+            
+            content.querySelectorAll('a[data-page]').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = this.getAttribute('data-page');
+                    loadPage(page);
+                });
+            });
+        }
+
+        // Рендер страницы блога
+        function renderBlogPage(blogId) {
+            const blog = blogsData.find(b => b.id === blogId);
+            if (!blog) return;
+            
+            currentBlog = blog;
+            const content = document.getElementById('content');
+            
+            let html = `<h1 class="page-title">${blog.title}</h1>`;
+            html += `<p class="blog-author">Автор: ${blog.author}</p>`;
+            html += `<p class="blog-description">${blog.description}</p>`;
+            html += '<div class="posts-list">';
+            
+            const sortedPosts = [...blog.posts].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            sortedPosts.forEach(post => {
+                const userInitial = blog.author.charAt(0).toUpperCase();
+                
+                html += `
+                    <div class="post-card">
+                        <div class="post-header">
+                            <div class="user-avatar">${userInitial}</div>
+                            <div class="user-info">
+                                <div class="user-name">${blog.author}</div>
+                                <div class="post-date">${formatDate(post.date)}</div>
+                            </div>
+                        </div>
+                        <h3 class="post-title">${post.title}</h3>
+                        <p class="post-content">${processMentions(post.content)}</p>
+                        <div class="post-actions">
+                            <div class="post-action"><i class="far fa-heart"></i> Нравится</div>
+                            <div class="post-action"><i class="far fa-comment"></i> Комментировать</div>
+                            <div class="post-action"><i class="far fa-share-square"></i> Поделиться</div>
+                        </div>
+                        <a href="#" class="post-link" data-page="post-${post.id}">Читать полностью <i class="fas fa-chevron-right"></i></a>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            content.innerHTML = html;
+            
+            content.querySelectorAll('a[data-page]').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = this.getAttribute('data-page');
+                    loadPage(page);
+                });
+            });
+        }
+
+        // Рендер страницы поста
+        function renderPostPage(postId) {
+            const post = findPostById(postId);
+            if (!post) return;
+            
+            const blog = blogsData.find(b => b.posts.some(p => p.id === postId));
+            currentPost = post;
+            
+            const content = document.getElementById('content');
+            const userInitial = blog.author.charAt(0).toUpperCase();
+            
+            let html = `
+                <div class="post-header">
+                    <div class="user-avatar">${userInitial}</div>
+                    <div class="user-info">
+                        <div class="user-name">${blog.author}</div>
+                        <div class="post-date">${formatDate(post.date)}</div>
+                    </div>
+                </div>
+                <h1 class="page-title">${post.title}</h1>
+                <div class="post-content">${processMentions(post.content)}</div>
+                <div class="post-actions">
+                    <div class="post-action"><i class="far fa-heart"></i> Нравится</div>
+                    <div class="post-action"><i class="far fa-comment"></i> Комментировать</div>
+                    <div class="post-action"><i class="far fa-share-square"></i> Поделиться</div>
+                </div>
+                <a href="#" class="post-link" data-page="blog-${blog.id}"><i class="fas fa-chevron-left"></i> Вернуться к блогу</a>
+            `;
+            
+            content.innerHTML = html;
+            
+            content.querySelectorAll('a[data-page]').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = this.getAttribute('data-page');
+                    loadPage(page);
+                });
+            });
+        }
+
+        // Поиск по блогам
+        function performSearch(query, fromNavigation = false) {
+            if (!fromNavigation) {
+                loadPage(`search-${encodeURIComponent(query)}`);
+                return;
+            }
+            
+            const results = [];
+            const lowerQuery = query.toLowerCase();
+            
+            blogsData.forEach(blog => {
+                blog.posts.forEach(post => {
+                    const content = `${post.title} ${post.content} ${blog.author}`.toLowerCase();
+                    if (content.includes(lowerQuery)) {
+                        results.push({
+                            blog: blog,
+                            post: post,
+                            matches: findMatches(post, lowerQuery)
+                        });
+                    }
+                });
+            });
+            
+            searchResults = results;
+            renderSearchResults(query, results);
+        }
+
+        // Рендер результатов поиска
+        function renderSearchResults(query, results) {
+            const content = document.getElementById('content');
+            
+            let html = `<h1 class="page-title">Результаты поиска: "${query}"</h1>`;
+            
+            if (results.length === 0) {
+                html += '<p>По вашему запросу ничего не найдено.</p>';
+            } else {
+                html += `<p>Найдено результатов: ${results.length}</p>`;
+                html += '<div class="posts-list">';
+                
+                results.forEach(result => {
+                    const highlightedContent = highlightMatches(result.post.content, result.matches);
+                    const userInitial = result.blog.author.charAt(0).toUpperCase();
+                    
+                    html += `
+                        <div class="post-card">
+                            <div class="post-header">
+                                <div class="user-avatar">${userInitial}</div>
+                                <div class="user-info">
+                                    <div class="user-name">${result.blog.author}</div>
+                                    <div class="post-date">${formatDate(result.post.date)}</div>
+                                </div>
+                            </div>
+                            <h3 class="post-title">${result.post.title}</h3>
+                            <p class="post-content">${processMentions(highlightedContent)}</p>
+                            <div class="post-actions">
+                                <div class="post-action"><i class="far fa-heart"></i> Нравится</div>
+                                <div class="post-action"><i class="far fa-comment"></i> Комментировать</div>
+                                <div class="post-action"><i class="far fa-share-square"></i> Поделиться</div>
+                            </div>
+                            <a href="#" class="post-link" data-page="post-${result.post.id}">Читать полностью <i class="fas fa-chevron-right"></i></a>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+            }
+            
+            content.innerHTML = html;
+            
+            content.querySelectorAll('a[data-page]').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = this.getAttribute('data-page');
+                    loadPage(page);
+                });
+            });
+        }
+
+        // Вспомогательные функции
+        function findPostById(postId) {
+            for (const blog of blogsData) {
+                const post = blog.posts.find(p => p.id === postId);
+                if (post) return post;
+            }
+            return null;
+        }
+
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('ru-RU', options);
+        }
+
+        function processMentions(text) {
+            return text.replace(/@(\w+)/g, '<a href="#" data-page="search-$1" class="mention">@$1</a>');
+        }
+
+        function findMatches(post, query) {
+            const matches = [];
+            const fields = [post.title, post.content];
+            
+            fields.forEach(field => {
+                const lowerField = field.toLowerCase();
+                let index = lowerField.indexOf(query);
+                
+                while (index !== -1) {
+                    matches.push({
+                        start: index,
+                        end: index + query.length
+                    });
+                    index = lowerField.indexOf(query, index + 1);
+                }
+            });
+            
+            return matches;
+        }
+
+        function highlightMatches(text, matches) {
+            if (matches.length === 0) return text;
+            
+            const sortedMatches = [...matches].sort((a, b) => b.start - a.start);
+            
+            let result = text;
+            sortedMatches.forEach(match => {
+                const before = result.substring(0, match.start);
+                const matched = result.substring(match.start, match.end);
+                const after = result.substring(match.end);
+                result = before + '<span class="highlight">' + matched + '</span>' + after;
+            });
+            
+            return result;
+        }
+
+        // Функции для работы с модальным окном
+        function openModal() {
+            document.getElementById('flagModal').style.display = 'flex';
+            document.getElementById('flagInput').value = '';
+            document.getElementById('flagResult').textContent = '';
+            document.getElementById('flagInput').focus();
+        }
+
+        function closeModal() {
+            document.getElementById('flagModal').style.display = 'none';
+            loadPage('home');
+        }
+
+        function checkFlag() {
+            const input = document.getElementById('flagInput').value.trim();
+            const resultElement = document.getElementById('flagResult');
+            
+            if (input === 'CTF{B1rthd4y_4l3x_19_DevCon_2024}') {
+                resultElement.textContent = 'Правильно! Флаг принят. Поздравляем с решением CTF-задачи!';
+                resultElement.style.color = '#4bb34b';
+                window.location.href = '/game';
+            } else {
+                resultElement.textContent = 'Неверный флаг. Попробуйте еще раз.';
+                resultElement.style.color = '#e64646';
+            }
+        }
+
+        // Добавляем обработчики для упоминаний
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('mention')) {
+                e.preventDefault();
+                const username = e.target.textContent.substring(1);
+                loadPage(`search-${username}`);
+            }
+        });
+        
+    
+        
+    </script>
+</body>
+</html>
