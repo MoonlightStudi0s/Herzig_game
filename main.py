@@ -4,6 +4,9 @@ import sqlite3
 from datetime import datetime, timedelta
 import os
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_socketio import SocketIO, emit, join_room, leave_room
+
+
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
@@ -12,6 +15,57 @@ app.secret_key = 'a3f4d6e8c91b207f5e8a946a835a8d1f2b7c4e5d60a93f184b2e6d7c901a2b
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)    
 app.config['REMEMBER_COOKIE_DURATION'] = timedelta(days=7)      
 app.config['REMEMBER_COOKIE_REFRESH_EACH_REQUEST'] = True
+
+
+socketio = SocketIO(app)
+
+
+# ============================================================================
+#                                         Настройки bash
+
+from flask import Flask, request, jsonify, render_template
+import subprocess, shlex, locale, os, sys, time
+
+
+ALLOWED_PROGS = {"echo", "whoami", "pwd", "ipconfig", "dir", "type", "ls", "cat", "netstat"}
+MAX_CMD_LEN = 1000
+MAX_OUTPUT_CHARS = 20000
+RUN_TIMEOUT = 6  # seconds
+
+def decode_output(b: bytes) -> str:
+    encs = []
+    try:
+        sys_enc = locale.getpreferredencoding(False)
+    except Exception:
+        sys_enc = None
+    if sys_enc:
+        encs.append(sys_enc)
+    if os.name == "nt":
+        encs.append("cp866")
+    encs += ["utf-8", "cp1251", "latin1"]
+    seen = []
+    for e in encs:
+        if e and e not in seen:
+            seen.append(e)
+    for enc in seen:
+        try:
+            return b.decode(enc)
+        except Exception:
+            continue
+    return b.decode("latin1", errors="replace")
+
+def preexec_limits():
+    if not HAVE_RESOURCE:
+        return
+    try:
+        resource.setrlimit(resource.RLIMIT_CPU, (2,2))
+        resource.setrlimit(resource.RLIMIT_AS, (300_000_000, 300_000_000))
+    except Exception:
+        pass
+
+# ============================================================================
+
+
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -39,29 +93,40 @@ def getdb():
     return conn
 
 def initdb():
-    if not os.path.exists('database.db'):
-        conn = getdb()
-        conn.execute('''
-            CREATE TABLE users(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                username TEXT UNIQUE NOT NULL,
-                email TEXT UNIQUE NOT NULL,
-                password TEXT NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                is_admin BOOLEAN DEFAULT FALSE
-            )
-        ''')
-        conn.execute('''
-            CREATE TABLE games(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                duration TEXT,
-                start_time DATETIME,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''') 
-        conn.commit()
-        conn.close()
+    conn = sqlite3.connect('database.db')
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE,
+            email TEXT UNIQUE,
+            password TEXT,
+            is_admin INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS games (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            duration TEXT,
+            start_time DATETIME,
+            status TEXT DEFAULT 'waiting',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS players (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            game_id INTEGER NOT NULL,
+            user_id INTEGER NOT NULL,
+            joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (game_id) REFERENCES games (id) ON DELETE CASCADE,
+            FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
 
 initdb()
 
@@ -217,6 +282,11 @@ def admin_games():
 def game_page():
     return render_template('game.html')
 
+@app.route('/game')
+@login_required
+def gamebash():
+    return(render_template('main_game_bash.html'))
+
 
 
 
@@ -226,26 +296,44 @@ def game_page():
 
 
 @app.route('/api/game/<int:game_id>', methods=['GET'])
+@login_required
 def api_get_game(game_id):
     conn = getdb()
-    game = conn.execute('SELECT * FROM games WHERE id = ?', (game_id,)).fetchone()
-    conn.close()
 
+    game = conn.execute('SELECT * FROM games WHERE id = ?', (game_id,)).fetchone()
     if not game:
+        conn.close()
         return jsonify({"error": "Игра не найдена"}), 404
 
-    fake_game = {
+    # Получаем игроков
+    players = conn.execute('''
+        SELECT u.username 
+        FROM players p 
+        JOIN users u ON p.user_id = u.id 
+        WHERE p.game_id = ?
+    ''', (game_id,)).fetchall()
+
+    conn.close()
+
+    players_list = [p['username'] for p in players]
+
+    game_data = {
         "id": game["id"],
         "name": game["name"],
         "duration": game["duration"] or "10 минут",
-        "start_time": game["start_time"] or str(datetime.now()), 
-        "players": 1,
+        "start_time": game["start_time"] or str(datetime.now()),
+        "players": len(players_list),
         "maxPlayers": 8,
-        "description": "Тестовая игра: подключение API",
-        "playersList": ["Игрок1"]
+        "description": "Игра с реальным API и таблицей игроков",
+        "playersList": players_list,
+        "type": "adventure",
+        "status": game["status"],
+        "isAdmin": is_admin()
     }
 
-    return jsonify(fake_game)
+    return jsonify(game_data)
+
+
 
 @app.route('/admin/games/add', methods=['GET', 'POST'])
 @login_required
@@ -415,9 +503,171 @@ def checklogin():
         
     return "Method not allowed", 405
 
+
+@app.route("/exec", methods=["POST"])
+def exec_cmd():
+    data = request.get_json() or {}
+    cmd = (data.get("command") or "").strip()
+    if not cmd:
+        return jsonify({"output": "Введите команду", "cwd": os.getcwd()}), 400
+    if len(cmd) > MAX_CMD_LEN:
+        return jsonify({"output": "Команда слишком длинная.", "cwd": os.getcwd()}), 400
+
+    # безопасный разбор аргументов
+    try:
+        parts = shlex.split(cmd, posix=(os.name != "nt"))
+    except Exception:
+        return jsonify({"output": "Ошибка парсинга команды", "cwd": os.getcwd()}), 400
+    if not parts:
+        return jsonify({"output": "", "cwd": os.getcwd()})
+
+    prog = parts[0].lower()
+    # специальная обработка встроенных команд, которые мы хотим реализовать в Python
+    if prog == "cd":
+        # cd without args -> show current
+        if len(parts) == 1:
+            return jsonify({"output": os.getcwd(), "cwd": os.getcwd()})
+        target = parts[1]
+        # попытка разрешить относительные и абсолютные пути
+        try:
+            # на Windows позволим пути с / и \
+            new_path = target
+            if not (os.path.isabs(new_path) or (os.name == "nt" and ":" in new_path)):
+                new_path = os.path.join(os.getcwd(), new_path)
+            new_path = os.path.abspath(new_path)
+            if os.path.isdir(new_path):
+                os.chdir(new_path)
+                return jsonify({"output": "", "cwd": os.getcwd()})
+            else:
+                return jsonify({"output": "The system cannot find the path specified.", "cwd": os.getcwd()})
+        except Exception as e:
+            return jsonify({"output": str(e), "cwd": os.getcwd()})
+
+    if prog == "mkdir":
+        if len(parts) == 1:
+            return jsonify({"output": "The syntax of the command is incorrect.", "cwd": os.getcwd()})
+        target = parts[1]
+        try:
+            path = target
+            if not os.path.isabs(path) and not (os.name == "nt" and ":" in path):
+                path = os.path.join(os.getcwd(), path)
+            os.makedirs(path, exist_ok=True)
+            return jsonify({"output": "", "cwd": os.getcwd()})
+        except Exception as e:
+            return jsonify({"output": f"Ошибка: {e}", "cwd": os.getcwd()})
+
+    # дальше: проверим по белому списку
+    if prog not in ALLOWED_PROGS:
+        return jsonify({"output": f"Команда '{prog}' запрещена.", "cwd": os.getcwd()})
+
+    # Выполнение: Windows - через cmd /c (чтобы поддержать dir, ipconfig и т.п.)
+    try:
+        if os.name == "nt":
+            # Используем cmd /c <original cmd string>
+            run_cmd = ["cmd", "/c", cmd]
+            completed = subprocess.run(
+                run_cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                timeout=RUN_TIMEOUT,
+                shell=False
+            )
+        else:
+            # Unix: запускаем безопасно как список
+            kwargs = {"stdout": subprocess.PIPE, "stderr": subprocess.PIPE, "timeout": RUN_TIMEOUT, "shell": False}
+            if HAVE_RESOURCE:
+                kwargs["preexec_fn"] = preexec_limits
+            completed = subprocess.run(parts, **kwargs)
+
+        raw = completed.stdout + completed.stderr
+        text = decode_output(raw)
+        if len(text) > MAX_OUTPUT_CHARS:
+            text = text[:MAX_OUTPUT_CHARS] + "\n\n[output truncated]"
+    except subprocess.TimeoutExpired:
+        text = "Timeout: команда превысила лимит времени."
+    except FileNotFoundError:
+        text = f"Команда '{prog}' не найдена на системе."
+    except Exception as e:
+        text = f"Ошибка выполнения: {e}"
+
+    return jsonify({"output": text, "cwd": os.getcwd()})
+
+
+@app.route('/api/game/<int:game_id>/start', methods=['POST'])
+@login_required
+def api_start_game(game_id):
+    if not is_admin():
+        return jsonify({"error": "Только администратор может начать игру"}), 403
+
+    conn = getdb()
+    game = conn.execute('SELECT * FROM games WHERE id = ?', (game_id,)).fetchone()
+    if not game:
+        conn.close()
+        return jsonify({"error": "Игра не найдена"}), 404
+
+    try:
+        # Меняем статус игры на in_progress и ставим время старта
+        conn.execute('UPDATE games SET status = ?, start_time = ? WHERE id = ?', 
+                     ("in_progress", datetime.now().strftime('%Y-%m-%d %H:%M:%S'), game_id))
+        conn.commit()
+        conn.close()
+
+        # Сообщаем всем игрокам через Socket.IO
+        socketio.emit('game_started', {'game_id': game_id}, room=f'game_{game_id}')
+
+        return jsonify({"success": True})
+    except sqlite3.Error as e:
+        conn.close()
+        return jsonify({"error": f"Ошибка при старте игры: {e}"}), 500
+
+
+    
+
+@app.route('/api/game/<int:game_id>/join', methods=['POST'])
+@login_required
+def api_join_game(game_id):
+    conn = getdb()
+    user_id = current_user.id
+
+    # Проверим, есть ли игра
+    game = conn.execute('SELECT * FROM games WHERE id = ?', (game_id,)).fetchone()
+    if not game:
+        conn.close()
+        return jsonify({"error": "Игра не найдена"}), 404
+
+    # Проверим, есть ли уже игрок
+    existing = conn.execute('SELECT * FROM players WHERE game_id = ? AND user_id = ?', 
+                            (game_id, user_id)).fetchone()
+    if not existing:
+        conn.execute('INSERT INTO players (game_id, user_id) VALUES (?, ?)', (game_id, user_id))
+        conn.commit()
+
+    conn.close()
+    return jsonify({"success": True})
+
+
+
+
+@socketio.on('join_game')
+def handle_join_game(data):
+    game_id = data.get('game_id')
+    join_room(f'game_{game_id}')
+    print(f"Пользователь подключился к комнате игры {game_id}")
+
+@socketio.on('leave_game')
+def handle_leave_game(data):
+    game_id = data.get('game_id')
+    leave_room(f'game_{game_id}')
+    print(f"Пользователь покинул комнату игры {game_id}")
+
+
+
 @app.errorhandler(404)
 def notfound(e):
     return render_template('404.html'), 404
 
+
+
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True)

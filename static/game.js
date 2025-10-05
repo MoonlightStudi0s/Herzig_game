@@ -3,6 +3,15 @@ class GameManager {
         this.gameId = this.getGameIdFromURL();
         this.username = this.getUsername();
         this.init();
+        this.socket = io();
+        this.socket.emit('join_game', { game_id: this.gameId });
+
+        this.socket.on('game_started', (data) => {
+            if (data.game_id == this.gameId) {
+                window.location.href = '/game';
+            }
+        });
+
     }
 
     // Получаем ID игры из URL
@@ -22,6 +31,23 @@ class GameManager {
         
         // Загружаем данные игры
         await this.loadGameData();
+        // Присоединяем игрока к игре при входе
+        await fetch(`/api/game/${this.gameId}/join`, { method: 'POST' });
+
+        // Проверяем статус игры каждые 3 секунды
+        setInterval(async () => {
+            const gameData = await this.fetchGameData(this.gameId);
+
+            // Обновляем список игроков
+            this.updatePlayersList(gameData.playersList);
+
+            // Если игра запущена — редирект
+            if (gameData.status === 'in_progress' && !gameData.isAdmin) {
+                window.location.href = '/game';
+            }
+        }, 3000);
+
+
     }
 
     async loadGameData() {
@@ -38,6 +64,21 @@ class GameManager {
         const response = await fetch(`/api/game/${gameId}`);
         if (!response.ok) throw new Error("Ошибка загрузки игры");
         return await response.json();
+    }
+
+    updatePlayersList(players) {
+        const container = document.querySelector('.players-list');
+        if (!container) return;
+        
+        container.innerHTML = `
+            <h3>Участники (${players.length})</h3>
+            ${players.map(player => `
+                <div class="player-card">
+                    <strong>${player}</strong>
+                    ${player === this.username ? '<div>🌟 Вы</div>' : ''}
+                </div>
+            `).join('')}
+        `;
     }
 
 
@@ -93,7 +134,7 @@ class GameManager {
             'waiting': '⏳ Ожидание',
             'in_progress': '🎮 В процессе',
             'finished': '✅ Завершена'
-        };
+            };
         return statuses[status] || status;
     }
 
@@ -104,9 +145,11 @@ class GameManager {
                     <div style="text-align: center; padding: 40px; color: white;">
                         <h4>Ожидаем игроков...</h4>
                         <p>Присоединилось: ${gameData.players}/${gameData.maxPlayers}</p>
-                        <button class="control-button" onclick="gameManager.startGame()">
-                            Начать игру
-                        </button>
+                        ${gameData.isAdmin ? `
+                            <button class="control-button" onclick="gameManager.startGame()">
+                                Начать игру
+                            </button>
+                        ` : `<p style="color:#aaa;">Ожидание администратора для старта игры</p>`}
                     </div>
                 `;
             case 'in_progress':
@@ -132,6 +175,7 @@ class GameManager {
         }
     }
 
+
     renderControls(gameData) {
         const controls = [];
         
@@ -150,14 +194,26 @@ class GameManager {
 
     // Методы управления игрой
     startGame() {
-        alert('Игра начинается!');
-        // Здесь будет логика начала игры
+        fetch(`/api/game/${this.gameId}/start`, { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // Перенаправляем всех игроков на страницу игры
+                    window.location.href = '/game';
+                } else {
+                    alert(data.error || 'Не удалось начать игру');
+                }
+            })
+            .catch(() => alert('Ошибка при попытке начать игру'));
     }
+
 
     leaveGame() {
         if (confirm('Вы уверены, что хотите покинуть игру?')) {
             window.location.href = '/lobby';
         }
+        
+        this.socket.emit('leave_game', { game_id: this.gameId });
     }
 
     inviteFriends() {

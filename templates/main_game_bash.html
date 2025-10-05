@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<title>Windows VM-ish Console</title>
+<style>
+body {
+  background: #1e1e1e;
+  color: #00ff00;
+  font-family: monospace;
+  padding: 20px;
+}
+#terminal {
+  border: 1px solid #444;
+  padding: 0 10px 10px 10px; /* верхний padding = 0 */
+  height: 500px;
+  overflow-y: auto;
+  background: #000;
+  white-space: pre-wrap;
+}
+
+#input-line {
+  display: flex;
+  margin-top: 8px;
+}
+#prompt {
+  color: #0f0;
+  margin-right: 8px;
+  min-width: 220px;
+}
+#cmd {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #0f0;
+  outline: none;
+  font-family: monospace;
+  font-size: 14px;
+}
+.cmd-line, .output-line {
+  white-space: pre;
+  margin: 0;      /* убираем любые отступы сверху и снизу */
+  padding: 0;
+}
+
+.error { color: #ff6666; }
+.info { color: #66ffcc; font-size: 13px; }
+</style>
+</head>
+<body>
+<div id="terminal">
+  <div id="history"></div>
+  <div id="input-line">
+    <span id="prompt">C:\Users&gt;</span>
+    <input id="cmd" autofocus autocomplete="off" />
+  </div>
+</div>
+
+<script>
+const input = document.getElementById("cmd");
+const historyDiv = document.getElementById("history");
+const promptSpan = document.getElementById("prompt");
+const terminal = document.getElementById("terminal");
+
+// вспомогательная печать
+function appendLine(cmd, output, cwd) {
+  // используем <pre> чтобы всё начиналось с начала строки
+  const cmdHtml = `<pre class="cmd-line"><span style="color:#0f0">${escapeHtml(cwd)}&gt;</span> ${escapeHtml(cmd)}</pre>`;
+  let outHtml = "";
+  if (output) {
+    outHtml = `<pre class="output-line">${escapeHtml(output)}</pre>`;
+  }
+  historyDiv.innerHTML += cmdHtml + outHtml;
+  terminal.scrollTop = terminal.scrollHeight;
+}
+
+
+// экранирование
+function escapeHtml(s) {
+  if (!s && s !== "") return "";
+  return s
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
+// обработка Enter
+input.addEventListener("keydown", async (e) => {
+  if (e.key === "Enter") {
+    const cmd = input.value.trim();
+    if (!cmd) return;
+    input.value = "";
+
+    // отправляем на /exec
+    try {
+      const res = await fetch("/exec", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ command: cmd })
+      });
+      const data = await res.json();
+      const out = data.output || "";
+      const cwd = data.cwd || "C:\\Users";
+
+      // если special clear token
+      if (out === "__clear__" || (cmd.toLowerCase() === "cls")) {
+        historyDiv.innerHTML = "";
+      } else {
+        appendLine(cmd, out, cwd);
+      }
+
+      // обновить prompt
+      promptSpan.textContent = cwd + ">";
+    } catch (err) {
+      appendLine(cmd, "Ошибка соединения с сервером", "C:\\Users");
+    }
+  }
+});
+
+// стартовая подсказка: запросим cwd (или используем текущую)
+(async function getCwd() {
+  try {
+    const res = await fetch("/exec", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ command: "" })
+    });
+    const data = await res.json();
+    const cwd = data.cwd || "C:\\Users";
+    promptSpan.textContent = cwd + ">";
+  } catch (e) {
+    promptSpan.textContent = "C:\\Users>";
+  }
+})();
+</script>
+</body>
+</html>
