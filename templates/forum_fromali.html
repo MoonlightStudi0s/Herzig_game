@@ -954,7 +954,7 @@
             
             html += `<div class="hint">
                 <i class="fas fa-info-circle"></i> 
-                Подсказка: Флаг разделен на части и спрятан в коде страницы. Ищите внимательно!
+                Подсказка: Р¤Р»Р°Рі СЂР°Р·РґРµР»РµРЅ РЅР° С‡Р°СЃС‚Рё Рё СЃРїСЂСЏС‚Р°РЅ РІ РєРѕРґРµ СЃС‚СЂР°РЅРёС†С‹. Р�С‰РёС‚Рµ РІРЅРёРјР°С‚РµР»СЊРЅРѕ!
             </div>`;
             
             html += '<h2 style="margin-top: 30px; margin-bottom: 20px;">Все блоги</h2>';
@@ -1254,19 +1254,32 @@
             loadPage('home');
         }
 
-        function checkFlag() {
+        async function checkFlag() {
             const input = document.getElementById('flagInput').value.trim();
             const resultElement = document.getElementById('flagResult');
             
             if (input === 'CTF{B1rthd4y_4l3x_19_DevCon_2024}') {
                 resultElement.textContent = 'Правильно! Флаг принят. Поздравляем с решением CTF-задачи!';
                 resultElement.style.color = '#4bb34b';
+
+                // Отправляем запрос на сервер
+                const response = await fetch("/api/game/statusofplayer", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ status: "find" })
+                });
+
+                const data = await response.json();
+                console.log(data);
+
+                // Возвращаемся на страницу игры
                 window.location.href = '/game';
             } else {
                 resultElement.textContent = 'Неверный флаг. Попробуйте еще раз.';
                 resultElement.style.color = '#e64646';
             }
         }
+
 
         // Добавляем обработчики для упоминаний
         document.addEventListener('click', function(e) {

@@ -128,8 +128,24 @@ def initdb():
     conn.close()
 
 
-initdb()
 
+def initratedb():
+    conn = sqlite3.connect('game.db')
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS gamestatus(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            game_id INTEGER NOT NULL,
+            user_id INTEGER NOT NULL,
+            level_status INTEGER
+        )    
+    ''')
+
+    conn.commit()
+    conn.close()
+
+
+initdb()
+initratedb()
 
 def is_admin():
     if not current_user.is_authenticated:
@@ -653,6 +669,40 @@ def api_join_game(game_id):
 
     conn.close()
     return jsonify({"success": True})
+
+@app.route('/api/game/statusofplayer', methods=['POST'])
+@login_required
+def api_statusofplayer():
+    data = request.get_json()
+    user_id = current_user.id
+    status = data.get("status")
+
+    conn = sqlite3.connect('game.db')
+    cursor = conn.cursor()
+
+    # Проверяем, есть ли запись для этого игрока
+    cursor.execute("SELECT id FROM gamestatus WHERE user_id = ?", (user_id,))
+    existing = cursor.fetchone()
+
+    if not existing:
+        # создаём новую запись
+        cursor.execute(
+            "INSERT INTO gamestatus (game_id, user_id, level_status) VALUES (?, ?, ?)",
+            (1, user_id, 0)  # по умолчанию игра №1, статус 0
+        )
+        conn.commit()
+
+    if status == "find":
+        cursor.execute(
+            "UPDATE gamestatus SET level_status = ? WHERE user_id = ?",
+            (1, user_id)
+        )
+        conn.commit()
+        conn.close()
+        return jsonify({"success": True, "message": "Флаг принят, статус обновлён!"})
+
+    conn.close()
+    return jsonify({"success": False, "message": "Неверный статус"}), 400
 
 
 
