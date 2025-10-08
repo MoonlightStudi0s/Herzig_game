@@ -704,6 +704,33 @@ def api_statusofplayer():
     conn.close()
     return jsonify({"success": False, "message": "Неверный статус"}), 400
 
+@app.route('/api/game/statusofplayer/toall', methods=['GET'])
+@login_required
+def api_score_to_all():
+    conn = sqlite3.connect('game.db')
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+
+    cursor.execute('SELECT game_id, user_id, level_status FROM gamestatus')
+    records = cursor.fetchall()
+    conn.close()
+
+    if not records:
+        return jsonify({"message": "Нет данных о статусах игроков"}), 404
+
+
+    result = {}
+    for row in records:
+        game_id = row['game_id']
+        if game_id not in result:
+            result[game_id] = []
+        result[game_id].append({
+            "user_id": row['user_id'],
+            "level_status": row['level_status']
+        })
+
+    return jsonify({"games": result})
 
 
 
