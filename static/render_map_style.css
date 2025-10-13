@@ -1,0 +1,53 @@
+body{
+    background-color: rgba(0, 2, 3, 0.97);
+}
+#kvadratik-l1{
+    background: rgb(243,233,32);
+    border-radius: 16px;
+    width: 100px;
+    height: 100px;
+    bottom: 0;
+    right: 0;
+    margin-right: 100px;
+    margin-bottom: 100px;
+    margin-left: 100px;
+    position: absolute;
+}
+#kvadratik-l2{
+    background: rgb(243,233,32);
+    border-radius: 16px;
+    width: 100px;
+    height: 100px;
+    margin-top: 100px;
+    margin-left: 100px;
+}
+#vline1{
+    right: 0;
+    margin-right: 130px;
+    margin-top: 35px;
+    border-right: 3px solid whitesmoke;
+    height: 450px;
+    position: absolute;
+}
+#vline2{
+    right: 0;
+    margin-right: 162.5px;
+    margin-top: 70px;
+    border-right: 3px solid whitesmoke;
+    height: 415px;
+    position: absolute;
+}
+#hline1{
+    right: 0;
+    margin-left: 767px;
+    margin-top: 32px;
+    border-bottom: 3px solid whitesmoke;
+    width: 583.5px;
+}
+#hline2{
+    right: 0;
+    margin-left: 767.5px;
+    margin-top: 32px;
+    border-bottom: 3px solid whitesmoke;
+    width: 550px;
+}
